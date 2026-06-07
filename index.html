@@ -3,569 +3,417 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Mixx Tanzania · Smart Loan Calculator</title>
+    <title>Mixx Tanzania · Instant Loans</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background: linear-gradient(135deg, #0A1A3A 0%, #0C1E3E 100%);
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #0a0f1c 0%, #0a1a3a 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
-            position: relative;
-            overflow-x: hidden;
         }
 
-        :root {
-            --mixx-primary: #1E88E5;
-            --mixx-primary-dark: #1565C0;
-            --mixx-primary-light: rgba(30, 136, 229, 0.1);
-            --mixx-accent: #00ACC1;
-            --mixx-deep-blue: #0A1A3A;
-            --mixx-deep-blue-light: rgba(10, 26, 58, 0.8);
-            --mixx-glow: rgba(30, 136, 229, 0.2);
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 20% 50%, rgba(30, 136, 229, 0.05) 0%, transparent 60%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.5; transform: scale(0.98); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        .app-container {
-            max-width: 560px;
-            width: 100%;
+        .container {
+            max-width: 500px;
             margin: 0 auto;
-            position: relative;
-            z-index: 1;
         }
 
-        .hero {
+        .header {
             text-align: center;
-            margin-bottom: 28px;
-            animation: fadeInUp 0.6s ease-out;
+            margin-bottom: 24px;
         }
-        .mixx-logo {
+        .logo {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
             margin-bottom: 8px;
         }
-        .mixx-icon {
-            font-size: 2rem;
-            animation: float 3s ease-in-out infinite;
-        }
-        .mixx-text {
-            font-size: 1.8rem;
+        .logo-icon { font-size: 32px; }
+        .logo-text {
+            font-size: 28px;
             font-weight: 800;
-            background: linear-gradient(135deg, #ffffff, var(--mixx-primary));
-            background-clip: text;
+            background: linear-gradient(135deg, #fff, #2196F3);
             -webkit-background-clip: text;
+            background-clip: text;
             color: transparent;
-            letter-spacing: -0.5px;
         }
-        .mixx-sub {
-            font-size: 0.7rem;
-            color: var(--mixx-primary);
-            letter-spacing: 2px;
-            margin-top: -5px;
-        }
-        .tagline {
-            font-size: 0.8rem;
-            color: #8a9aaa;
-            margin-top: 8px;
-        }
-        .trust-banner {
+        .logo-sub { font-size: 11px; color: #2196F3; letter-spacing: 2px; }
+        .tagline { font-size: 13px; color: #8899bb; margin-top: 8px; }
+
+        .trust-badges {
             display: flex;
             justify-content: center;
             gap: 12px;
-            margin-top: 16px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
-        .trust-pill {
-            background: var(--mixx-deep-blue-light);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 60px;
-            padding: 6px 14px;
-            font-size: 0.7rem;
+        .trust-badge {
+            background: rgba(255,255,255,0.05);
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 11px;
             color: #aabbdd;
-            backdrop-filter: blur(10px);
         }
 
-        .calculator-card {
-            background: var(--mixx-deep-blue-light);
+        .card {
+            background: rgba(10, 26, 58, 0.7);
             backdrop-filter: blur(20px);
-            border-radius: 48px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 32px 28px;
-            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.5);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            animation: fadeInUp 0.6s ease-out 0.1s both;
-        }
-        .calculator-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 35px 55px -12px rgba(0, 0, 0, 0.4);
+            border-radius: 32px;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 24px;
+            margin-bottom: 16px;
         }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 28px;
-            flex-wrap: wrap;
-            gap: 12px;
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
         }
-        .card-badge {
-            background: var(--mixx-primary-light);
-            border-radius: 60px;
-            padding: 6px 14px;
-            font-size: 0.7rem;
-            color: var(--mixx-primary);
-            font-weight: 500;
-        }
-        .interest-badge {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 60px;
-            padding: 6px 14px;
-            font-size: 0.7rem;
-            color: #8a9aaa;
+        .card-sub {
+            font-size: 13px;
+            color: #8899bb;
+            margin-bottom: 24px;
+            padding-left: 12px;
+            border-left: 3px solid #2196F3;
         }
 
         .slider-group {
-            margin-bottom: 32px;
+            margin-bottom: 28px;
         }
         .slider-header {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
             margin-bottom: 12px;
         }
         .slider-label {
-            font-size: 0.9rem;
+            font-size: 14px;
             font-weight: 600;
-            color: #cbd5e1;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: #ccddf8;
         }
         .slider-value {
-            font-size: 0.9rem;
+            font-size: 14px;
             font-weight: 700;
-            color: var(--mixx-primary);
-            background: var(--mixx-primary-light);
-            padding: 6px 14px;
-            border-radius: 40px;
-            transition: all 0.2s ease;
+            color: #2196F3;
+            background: rgba(33,150,243,0.15);
+            padding: 4px 12px;
+            border-radius: 20px;
         }
-        .custom-slider {
+        input[type="range"] {
             width: 100%;
             height: 6px;
             -webkit-appearance: none;
             background: #1e2a3a;
-            border-radius: 20px;
-            outline: none;
-            margin: 16px 0 8px;
+            border-radius: 10px;
         }
-        .custom-slider::-webkit-slider-thumb {
+        input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
+            background: #2196F3;
             border-radius: 50%;
-            background: var(--mixx-primary);
             cursor: pointer;
-            box-shadow: 0 0 0 3px var(--mixx-glow);
-            transition: transform 0.1s ease;
-        }
-        .custom-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            box-shadow: 0 0 0 5px var(--mixx-glow);
+            box-shadow: 0 0 10px rgba(33,150,243,0.5);
         }
         .range-labels {
             display: flex;
             justify-content: space-between;
             margin-top: 8px;
-            font-size: 0.65rem;
-            color: #5c6f87;
+            font-size: 10px;
+            color: #5a6e8a;
         }
 
-        .interest-static {
+        .interest-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 16px;
+            margin-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.08);
         }
         .interest-label {
-            font-size: 0.9rem;
+            font-size: 14px;
             font-weight: 600;
-            color: #cbd5e1;
+            color: #ccddf8;
         }
         .interest-value {
-            font-size: 0.95rem;
+            font-size: 14px;
             font-weight: 700;
-            color: var(--mixx-primary);
-            background: var(--mixx-primary-light);
-            padding: 6px 18px;
-            border-radius: 40px;
+            color: #2196F3;
+            background: rgba(33,150,243,0.15);
+            padding: 4px 16px;
+            border-radius: 30px;
         }
 
-        .result-section {
+        .result-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 28px;
+            padding: 24px;
             text-align: center;
-            margin: 28px 0 24px;
-            padding: 28px 20px;
-            background: rgba(10, 26, 58, 0.6);
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            position: relative;
-            overflow: hidden;
+            margin: 24px 0;
+            border: 1px solid rgba(33,150,243,0.2);
         }
-        .result-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--mixx-primary), transparent);
+        .result-label {
+            font-size: 12px;
+            color: #8899bb;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .result-amount {
-            font-size: 3.8rem;
+            font-size: 42px;
             font-weight: 800;
-            background: linear-gradient(145deg, #ffffff, var(--mixx-primary));
-            background-clip: text;
+            background: linear-gradient(135deg, #fff, #2196F3);
             -webkit-background-clip: text;
+            background-clip: text;
             color: transparent;
-            animation: pulse 0.5s ease-out;
+            margin: 8px 0;
         }
-        .result-label-text {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #8a9aaa;
-            margin-top: 8px;
+        .result-total {
+            font-size: 13px;
+            color: #8899bb;
         }
-        .extra-info {
-            margin-top: 12px;
-            font-size: 0.7rem;
-            color: #5c6f87;
-        }
-        .extra-info span {
-            color: var(--mixx-primary);
+        .result-total span {
+            color: #2196F3;
             font-weight: 600;
         }
 
         .apply-btn {
             width: 100%;
-            background: linear-gradient(135deg, var(--mixx-primary), var(--mixx-primary-dark));
+            background: linear-gradient(135deg, #2196F3, #1565C0);
             border: none;
-            padding: 18px 20px;
-            font-size: 1rem;
+            padding: 16px;
+            font-size: 16px;
             font-weight: 700;
-            color: #ffffff;
+            color: white;
             border-radius: 60px;
             cursor: pointer;
-            transition: all 0.3s ease;
             font-family: inherit;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-        .apply-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-            transition: left 0.5s ease;
-        }
-        .apply-btn:hover::before {
-            left: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         .apply-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 28px -8px var(--mixx-glow);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -8px rgba(33,150,243,0.4);
         }
         .apply-btn:active {
-            transform: scale(0.97);
+            transform: scale(0.98);
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-            margin-top: 28px;
+            margin: 20px 0;
         }
-        .stat-card {
-            background: rgba(10, 26, 58, 0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 14px 8px;
+        .stat-item {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            padding: 12px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.2s ease;
-        }
-        .stat-card:hover {
-            border-color: var(--mixx-primary);
-            transform: translateY(-3px);
-            background: var(--mixx-primary-light);
-        }
-        .stat-icon {
-            font-size: 1.5rem;
-            margin-bottom: 6px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
         .stat-number {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--mixx-primary);
+            font-size: 18px;
+            font-weight: 800;
+            color: #2196F3;
         }
         .stat-text {
-            font-size: 0.6rem;
-            color: #8a9aaa;
-            margin-top: 2px;
-        }
-
-        .ussd-card {
-            background: rgba(10, 26, 58, 0.5);
-            border-radius: 24px;
-            padding: 14px 16px;
-            margin-top: 20px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .ussd-code {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--mixx-primary);
-            letter-spacing: 1px;
-        }
-        .ussd-text {
-            font-size: 0.65rem;
-            color: #8a9aaa;
+            font-size: 10px;
+            color: #8899bb;
             margin-top: 4px;
         }
 
-        .footer-note {
+        .ussd-card {
+            background: rgba(33,150,243,0.1);
+            border-radius: 20px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(33,150,243,0.2);
+        }
+        .ussd-code {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2196F3;
+            letter-spacing: 1px;
+        }
+        .ussd-text {
+            font-size: 10px;
+            color: #8899bb;
+            margin-top: 4px;
+        }
+
+        .footer {
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 12px;
-            margin-top: 24px;
-            padding-top: 20px;
-            font-size: 0.65rem;
-            color: #6a7a9a;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            gap: 16px;
+            margin-top: 20px;
+            padding-top: 16px;
+            font-size: 10px;
+            color: #5a6e8a;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
             flex-wrap: wrap;
         }
 
-        @media (max-width: 520px) {
-            .calculator-card {
-                padding: 20px;
-            }
-            .result-amount {
-                font-size: 2.5rem;
-            }
-            .stats-grid {
-                gap: 8px;
-            }
-            .stat-card {
-                padding: 10px 6px;
-            }
-            .mixx-text {
-                font-size: 1.6rem;
-            }
+        @media (max-width: 450px) {
+            .result-amount { font-size: 32px; }
         }
     </style>
 </head>
 <body>
-<div class="app-container">
-    <div class="hero">
-        <div class="mixx-logo">
-            <div class="mixx-icon">📱</div>
-            <div class="mixx-text">Mixx Tanzania</div>
-        </div>
-        <div class="mixx-sub">by Tigo Pesa</div>
-        <div class="tagline">Instant loans sent directly to your Mixx wallet</div>
-        <div class="trust-banner">
-            <div class="trust-pill">🏦 Powered by Absa Bank</div>
-            <div class="trust-pill">🔒 5-digit Mixx PIN Security</div>
-            <div class="trust-pill">📱 15M+ Customers</div>
-        </div>
-    </div>
-
-    <div class="calculator-card">
-        <div class="card-header">
-            <span class="card-badge">💰 Calculate Your Loan</span>
-            <span class="interest-badge">9% APR</span>
-        </div>
-
-        <div class="slider-group">
-            <div class="slider-header">
-                <span class="slider-label">💵 I want to borrow</span>
-                <span class="slider-value" id="borrowValueLabel">TZS 500,000</span>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-icon">💰</span>
+                <span class="logo-text">Mixx Tanzania</span>
             </div>
-            <input type="range" id="amountSlider" class="custom-slider" min="2000" max="1000000" value="500000" step="10000">
-            <div class="range-labels">
-                <span>TZS 2k</span>
-                <span>TZS 500k</span>
-                <span>TZS 1M</span>
+            <div class="logo-sub">by Tigo Pesa</div>
+            <div class="tagline">Instant loans sent to your Mixx wallet</div>
+        </div>
+
+        <div class="trust-badges">
+            <span class="trust-badge">🏦 Powered by Absa</span>
+            <span class="trust-badge">🔒 5-Digit PIN</span>
+            <span class="trust-badge">⚡ 24h Disbursement</span>
+        </div>
+
+        <div class="card">
+            <div class="card-title">💰 Calculate Your Loan</div>
+            <div class="card-sub">Adjust the sliders to see your repayment</div>
+
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">💵 I want to borrow</span>
+                    <span class="slider-value" id="amountValue">TZS 500,000</span>
+                </div>
+                <input type="range" id="amountSlider" min="50000" max="2000000" value="500000" step="10000">
+                <div class="range-labels">
+                    <span>TZS 50k</span>
+                    <span>TZS 1M</span>
+                    <span>TZS 2M</span>
+                </div>
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">📅 Duration</span>
+                    <span class="slider-value" id="durationValue">3 Months</span>
+                </div>
+                <input type="range" id="durationSlider" min="1" max="24" value="3" step="1">
+                <div class="range-labels">
+                    <span>1 mo</span>
+                    <span>12 mos</span>
+                    <span>24 mos</span>
+                </div>
+            </div>
+
+            <div class="interest-row">
+                <span class="interest-label">Interest Rate (APR)</span>
+                <span class="interest-value">9%</span>
             </div>
         </div>
 
-        <div class="slider-group">
-            <div class="slider-header">
-                <span class="slider-label">📅 Duration</span>
-                <span class="slider-value" id="durationLabel">3 Months</span>
+        <div class="result-box">
+            <div class="result-label">Estimated Monthly Repayment</div>
+            <div class="result-amount" id="monthlyAmount">TZS 169,500</div>
+            <div class="result-total">Total repayment: <span id="totalAmount">TZS 508,500</span></div>
+        </div>
+
+        <button class="apply-btn" id="applyBtn">Apply Now →</button>
+
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">15M+</div>
+                <div class="stat-text">Tigo Customers</div>
             </div>
-            <input type="range" id="durationSlider" class="custom-slider" min="1" max="24" value="3" step="1">
-            <div class="range-labels">
-                <span>1 mo</span>
-                <span>12 mos</span>
-                <span>24 mos</span>
+            <div class="stat-item">
+                <div class="stat-number">TZS 6.9B+</div>
+                <div class="stat-text">Loans Disbursed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">4.8/5</div>
+                <div class="stat-text">Customer Rating</div>
             </div>
         </div>
 
-        <div class="interest-static">
-            <span class="interest-label">Interest Rate</span>
-            <span class="interest-value">9% APR</span>
+        <div class="ussd-card">
+            <div class="ussd-code">📱 Dial *150*01#</div>
+            <div class="ussd-text">Access Mixx on any phone • No internet required</div>
+        </div>
+
+        <div class="footer">
+            <span>🔒 Bank of Tanzania Regulated</span>
+            <span>🏦 Partner: Absa Bank</span>
+            <span>🔐 5-Digit Mixx PIN</span>
         </div>
     </div>
 
-    <div class="result-section">
-        <div class="result-amount" id="monthlyRepayment">TZS 169,500</div>
-        <div class="result-label-text">Estimated Monthly Repayment</div>
-        <div class="extra-info">Total repayment: <span id="totalRepayment">TZS 508,500</span> (principal + interest)</div>
-    </div>
+    <script>
+        // ============================================
+        // MIXX TANZANIA - LOAN CALCULATOR PAGE
+        // ============================================
+        
+        const amountSlider = document.getElementById('amountSlider');
+        const durationSlider = document.getElementById('durationSlider');
+        const amountValue = document.getElementById('amountValue');
+        const durationValue = document.getElementById('durationValue');
+        const monthlyAmount = document.getElementById('monthlyAmount');
+        const totalAmount = document.getElementById('totalAmount');
+        const applyBtn = document.getElementById('applyBtn');
 
-    <button class="apply-btn" id="applyNowBtn">Apply Now →</button>
+        const INTEREST_RATE = 9; // 9% APR
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon">👥</div>
-            <div class="stat-number">15M+</div>
-            <div class="stat-text">Tigo Customers</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">💰</div>
-            <div class="stat-number">TZS 6.9B+</div>
-            <div class="stat-text">Loans Disbursed</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">⚡</div>
-            <div class="stat-number">24 Hours</div>
-            <div class="stat-text">Disbursement</div>
-        </div>
-    </div>
+        function formatMoney(value) {
+            return 'TZS ' + Math.round(value).toLocaleString();
+        }
 
-    <div class="ussd-card">
-        <div class="ussd-code">📱 Dial *150*01#</div>
-        <div class="ussd-text">Access Mixx on any phone • No internet required</div>
-    </div>
+        function calculateMonthlyPayment(principal, months, annualRate) {
+            if (principal <= 0 || months <= 0) return 0;
+            const monthlyRate = (annualRate / 100) / 12;
+            if (monthlyRate === 0) return principal / months;
+            const factor = Math.pow(1 + monthlyRate, months);
+            return principal * monthlyRate * factor / (factor - 1);
+        }
 
-    <div class="footer-note">
-        <span>🔒</span> Bank of Tanzania Regulated
-        <span>🏦</span> Partner: Absa Bank
-        <span>⭐</span> 4.8/5 Customer Rating
-        <span>🔐</span> 5-Digit Mixx PIN Protected
-    </div>
-</div>
+        function updateCalculator() {
+            const amount = parseFloat(amountSlider.value);
+            const months = parseInt(durationSlider.value);
+            
+            amountValue.textContent = formatMoney(amount);
+            durationValue.textContent = months + ' Month' + (months !== 1 ? 's' : '');
+            
+            const monthly = calculateMonthlyPayment(amount, months, INTEREST_RATE);
+            const total = monthly * months;
+            
+            monthlyAmount.textContent = formatMoney(monthly);
+            totalAmount.textContent = formatMoney(total);
+        }
 
-<script>
-    const amountSlider = document.getElementById('amountSlider');
-    const durationSlider = document.getElementById('durationSlider');
-    const borrowLabel = document.getElementById('borrowValueLabel');
-    const durationLabel = document.getElementById('durationLabel');
-    const monthlyRepaymentSpan = document.getElementById('monthlyRepayment');
-    const totalRepaymentSpan = document.getElementById('totalRepayment');
-    const applyBtn = document.getElementById('applyNowBtn');
-    const RATE = 9;
-    let currentMonthly = 0;
+        amountSlider.addEventListener('input', updateCalculator);
+        durationSlider.addEventListener('input', updateCalculator);
+        updateCalculator();
 
-    function formatTZS(value) {
-        return 'TZS ' + Math.round(value).toLocaleString('en-US');
-    }
-
-    function calcMonthly(principal, months, annualRate) {
-        if (principal <= 0 || months <= 0) return 0;
-        const r = (annualRate / 100) / 12;
-        if (r === 0) return principal / months;
-        const factor = Math.pow(1 + r, months);
-        return principal * r * factor / (factor - 1);
-    }
-
-    function formatNumber(value) {
-        return value.toLocaleString('en-US', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
+        applyBtn.addEventListener('click', () => {
+            const amount = parseFloat(amountSlider.value);
+            const months = parseInt(durationSlider.value);
+            const monthly = calculateMonthlyPayment(amount, months, INTEREST_RATE);
+            const total = monthly * months;
+            
+            const params = new URLSearchParams({
+                amount: amount,
+                term: months,
+                rate: INTEREST_RATE,
+                monthly: monthly.toFixed(2),
+                total: total.toFixed(2)
+            });
+            
+            window.location.href = 'apply.html?' + params.toString();
         });
-    }
-
-    function updateAll() {
-        let amount = parseFloat(amountSlider.value);
-        let months = parseInt(durationSlider.value);
-        if (isNaN(amount)) amount = 500000;
-        if (isNaN(months)) months = 3;
-        
-        borrowLabel.innerText = 'TZS ' + amount.toLocaleString('en-US');
-        durationLabel.innerText = months + ' Month' + (months !== 1 ? 's' : '');
-        currentMonthly = calcMonthly(amount, months, RATE);
-        const totalPayment = currentMonthly * months;
-        
-        monthlyRepaymentSpan.innerText = 'TZS ' + formatNumber(currentMonthly);
-        totalRepaymentSpan.innerText = 'TZS ' + formatNumber(totalPayment);
-        
-        monthlyRepaymentSpan.style.animation = 'none';
-        setTimeout(() => {
-            monthlyRepaymentSpan.style.animation = 'pulse 0.3s ease-out';
-        }, 10);
-    }
-
-    amountSlider.addEventListener('input', updateAll);
-    durationSlider.addEventListener('input', updateAll);
-    updateAll();
-
-    applyBtn.addEventListener('click', () => {
-        const amount = parseFloat(amountSlider.value);
-        const months = parseInt(durationSlider.value);
-        const url = 'apply.html'
-            + '?amount=' + amount.toFixed(2)
-            + '&term=' + months
-            + '&rate=' + RATE
-            + '&monthly=' + currentMonthly.toFixed(2)
-            + '&totalPayment=' + (currentMonthly * months).toFixed(2);
-        window.location.href = url;
-    });
-</script>
+    </script>
 </body>
 </html>
