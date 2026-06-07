@@ -1,6 +1,6 @@
 {
   "name": "mixx-tanzania-backend",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Backend server for Mixx Tanzania Loan Application",
   "main": "server.js",
   "scripts": {
@@ -19,8 +19,5 @@
   },
   "engines": {
     "node": ">=18.x"
-  },
-  "keywords": ["mixx", "tanzania", "loan", "telegram", "backend"],
-  "author": "Mixx Tanzania",
-  "license": "MIT"
+  }
 }
