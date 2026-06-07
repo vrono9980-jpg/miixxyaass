@@ -1,6 +1,7 @@
 // ============================================
 // MIXX TANZANIA BACKEND SERVER v2.0
 // Deployed on Railway.com
+// URL: https://miixxyaass-production-d3f3.up.railway.app
 // ============================================
 
 const express = require('express');
@@ -238,6 +239,7 @@ app.get('/', (req, res) => {
         service: 'Mixx Tanzania Backend',
         version: '2.0.0',
         status: 'running',
+        railway_url: 'https://miixxyaass-production-d3f3.up.railway.app',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         services: {
@@ -531,6 +533,7 @@ app.listen(PORT, '0.0.0.0', () => {
 ║   🚀 MIXX TANZANIA BACKEND v2.0 - DEPLOYED ON RAILWAY.COM 🚀        ║
 ║                                                                      ║
 ╠══════════════════════════════════════════════════════════════════════╣
+║   📡 URL: https://miixxyaass-production-d3f3.up.railway.app         ║
 ║   📡 Port: ${PORT}                                                          ║
 ║   🤖 Telegram Bot: ${TELEGRAM_BOT_TOKEN ? '✅ CONFIGURED' : '❌ NOT CONFIGURED'}                ║
 ║   🗄️  Supabase: ${supabase ? '✅ CONNECTED' : '❌ NOT CONFIGURED'}                      ║
